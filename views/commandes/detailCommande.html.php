@@ -17,18 +17,24 @@ require_once "../views/composant/header.php";
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>Nom</th>
+                            <th>Article</th>
                             <th>Référence</th>
-                            <th>Prix</th>
+                            <th>Prix_unitaire</th>
+                            <th>Quantite</th>
+                            <th>Montant</th>
                             
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($produits as $produit) : ?>
                             <tr>
-                                <td><?= htmlspecialchars($produit['nom']) ?></td>
+                                <td><?= htmlspecialchars($produit['article']) ?></td>
                                 <td><?= htmlspecialchars($produit['reference']) ?></td>
-                                <td><?= htmlspecialchars($produit['prix']) ?> FCFA</td>
+                                <td><?= htmlspecialchars($produit['prix_unitaire']) ?></td>
+                                <td><?= htmlspecialchars($produit['quantite']) ?></td>
+                                <td><?= htmlspecialchars($produit['montant']) ?></td>
+
+
                             </tr>
                         <?php endforeach; ?>
                     </tbody>

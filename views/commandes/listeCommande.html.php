@@ -7,7 +7,6 @@ require_once "../views/composant/header.php";
         <div class="card shadow p-4">
             <div class="text-center fs-4 mb-4">Liste des Commandes</div>
             <div class="row mb-4">
-                <?php if ($verif) : ?>
                     <div class="col-10">
                         <form class="form1" method="GET">
                             <input type="text" class="form-control" placeholder="Rechercher par téléphone..." name="telephone">
@@ -16,7 +15,6 @@ require_once "../views/composant/header.php";
                             <button type="submit" class="btn btn-success">Rechercher</button>
                         </form>
                     </div>
-                <?php endif ?>
                 <div class="col-2 text-end">
                 <a href="<?= WEBROOB ?>?controler=commande&page=ajout" class="btn btn-success">Nouveau</a>
 

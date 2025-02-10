@@ -72,7 +72,7 @@ function FindProduitsByCommandeId($commandeId) {
    foreach ($clients as $client) {
        foreach ($client['commandes'] as $commande) {
            if ($commande['id'] == $commandeId) {
-               return $client['produit']; // Retourne les produits du client qui a passé cette commande
+               return $client['produits']; // Retourne les produits du client qui a passé cette commande
            }
        }
    }
