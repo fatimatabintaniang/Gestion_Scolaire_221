@@ -13,6 +13,13 @@ function connectToDatabase() {
         return null;
     }
 }
+
+
+function isEmpty($name,&$errors){
+    if (empty($_POST[$name])) {
+       $errors[$name] =ucfirst($name). " est obligatoire.";
+   }
+ }
 function dd(){
     echo "<pre>";
     print_r(func_get_args());

@@ -5,7 +5,7 @@
             <h2 class="text-2xl font-semibold">Bienvenue dans l'interface , <?= $_SESSION["utilisateur"]["prenom"] ?? 'Utilisateur' ?></h2>
         </div>
         <div class="">
-            <img src="../image/img1.png" class="w-[30%]" alt="">
+            <img src="c:\Users\NZO BUSINESS\OneDrive\Bureau\Projet PHP\Gestion_des_biens_et _reservation\image\5. College Student.png" class="w-[30%]" alt="">
         </div>
     </div>
 
