@@ -12,7 +12,7 @@ function FindAllProfesseur($searchTerm = '', $page = null, $perPage = null)
         $sql = "SELECT DISTINCT p.id_professeur, u.nom, u.prenom, p.specialite, p.grade
                 FROM professeur p 
                 JOIN utilisateur u ON p.id_utilisateur = u.id_utilisateur
-                WHERE 1=1";
+                WHERE p.archive = 0";
         
         $params = [];
         
@@ -28,7 +28,7 @@ function FindAllProfesseur($searchTerm = '', $page = null, $perPage = null)
             $countSql = "SELECT COUNT(DISTINCT p.id_professeur) as total 
                         FROM professeur p 
                         JOIN utilisateur u ON p.id_utilisateur = u.id_utilisateur
-                        WHERE 1=1";
+                        WHERE 1=1 AND p.archive = 0";
             
             if (!empty($searchTerm)) {
                 $countSql .= " AND (u.nom LIKE :search OR u.prenom LIKE :search OR p.specialite LIKE :search)";
@@ -247,4 +247,18 @@ function CountProfesseurs($id_professeur = null, $nom = null, $prenom = null, $s
     return 0;
 }
 
+//===========================================fonction qui permet d'archiver un professeur========================================
 
+function ArchiveProfesseur($id_professeur) {
+    $pdo = connectToDatabase();
+    try {
+        // D'abord on archive l'utilisateur associé
+        $stmt = $pdo->prepare("
+           UPDATE professeur SET archive = 1 WHERE id_professeur = ?
+        ");
+        return $stmt->execute([$id_professeur]);
+    } catch (PDOException $e) {
+        error_log("[ERREUR] Échec de l'archivage: " . $e->getMessage());
+        return false;
+    }
+}

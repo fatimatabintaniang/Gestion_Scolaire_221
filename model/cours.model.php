@@ -77,13 +77,16 @@ function AddCours($data) {
     $pdo = connectToDatabase();
     if ($pdo) {
         try {
+            $pdo->beginTransaction();
+            
+            // 1. Insérer le cours
             $stmt = $pdo->prepare("
                 INSERT INTO cours 
                 (date, heure_debut, heure_fin, nombre_heures, semestre, id_professeur, id_module) 
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             ");
             
-            return $stmt->execute([
+            $stmt->execute([
                 $data['date'],
                 $data['heure_debut'],
                 $data['heure_fin'],
@@ -93,8 +96,40 @@ function AddCours($data) {
                 $data['module']
             ]);
             
+            // 2. Récupérer l'ID du cours inséré
+            $coursId = $pdo->lastInsertId();
+            
+            // 3. Ajouter les associations avec les classes
+            foreach ($data['classes'] as $classeId) {
+                $stmt = $pdo->prepare("INSERT INTO cours_classe (id_cours, id_classe) VALUES (?, ?)");
+                $stmt->execute([$coursId, $classeId]);
+            }
+            
+            $pdo->commit();
+            return true;
+            
         } catch (PDOException $e) {
+            $pdo->rollBack();
             error_log("Erreur lors de l'ajout du cours : " . $e->getMessage());
+            return false;
+        }
+    }
+    return false;
+}
+
+function affecterCoursClasse($coursId, $classeId)
+{
+    $pdo = connectToDatabase();
+    if ($pdo) {
+        try {
+            $stmt = $pdo->prepare("
+                INSERT INTO cours_classe 
+                (id_cours, id_classe) 
+                VALUES (?, ?)
+            ");
+            return $stmt->execute([$coursId, $classeId]);
+        } catch (PDOException $e) {
+            error_log("Erreur lors de l'affectation classe-cours : " . $e->getMessage());
             return false;
         }
     }
@@ -186,50 +221,58 @@ function CountCours($id_professeur = null, $date_debut = null, $date_fin = null)
     }
     return 0;
 }
-
-//========================================fonction de modification=====================
-function UpdateCours($cours_id, $data) {
+function UpdateCours($id, $data) {
     $pdo = connectToDatabase();
-    if ($pdo) {
-        try {
-            $stmt = $pdo->prepare("
-                UPDATE cours SET
-                    date = ?,
-                    heure_debut = ?,
-                    heure_fin = ?,
-                    nombre_heures = ?,
-                    semestre = ?,
-                    id_professeur = ?,
-                    id_module = ?
-                WHERE 
-                    id_cours = ?
-            ");
-            
-            return $stmt->execute([
-                $data['date'],
-                $data['heure_debut'],
-                $data['heure_fin'],
-                $data['nombre_heures'],
-                $data['semestre'],
-                $data['professeur'],
-                $data['module'],
-                $cours_id
-            ]);
-            
-        } catch (PDOException $e) {
-            error_log("Erreur lors de la mise à jour du cours : " . $e->getMessage());
-            return false;
+    
+    try {
+        // 1. Mettre à jour le cours lui-même
+        $stmt = $pdo->prepare("
+            UPDATE cours SET 
+                date = ?, 
+                heure_debut = ?, 
+                heure_fin = ?,
+                nombre_heures = ?,
+                semestre = ?,
+                id_professeur = ?,
+                id_module = ?
+            WHERE id_cours = ?
+        ");
+        
+        $stmt->execute([
+            $data['date'],
+            $data['heure_debut'],
+            $data['heure_fin'],
+            $data['nombre_heures'],
+            $data['semestre'],
+            $data['professeur'],
+            $data['module'],
+            $id
+        ]);
+        
+        // 2. Mettre à jour les associations avec les classes
+        // D'abord supprimer les anciennes
+        $stmt = $pdo->prepare("DELETE FROM cours_classe WHERE id_cours = ?");
+        $stmt->execute([$id]);
+        
+        // Puis ajouter les nouvelles
+        foreach ($data['classes'] as $classeId) {
+            $stmt = $pdo->prepare("INSERT INTO cours_classe (id_cours, id_classe) VALUES (?, ?)");
+            $stmt->execute([$id, $classeId]);
         }
+        
+        return true;
+    } catch (PDOException $e) {
+        error_log("Erreur modification cours: " . $e->getMessage());
+        return false;
     }
-    return false;
 }
-
 
 // fonction pour récupérer les données d'un cours spécifique depuis la base de données=============================
 function FindOneCours($cours_id) {
     $pdo = connectToDatabase();
     if ($pdo) {
         try {
+            // Récupérer les infos de base du cours
             $stmt = $pdo->prepare("
                 SELECT 
                     c.id_cours,
@@ -255,7 +298,22 @@ function FindOneCours($cours_id) {
                     c.id_cours = ?
             ");
             $stmt->execute([$cours_id]);
-            return $stmt->fetch(PDO::FETCH_ASSOC);
+            $cours = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($cours) {
+                // Récupérer les classes associées
+                $stmtClasses = $pdo->prepare("
+                    SELECT id_classe 
+                    FROM cours_classe 
+                    WHERE id_cours = ?
+                ");
+                $stmtClasses->execute([$cours_id]);
+                $classes = $stmtClasses->fetchAll(PDO::FETCH_COLUMN, 0);
+                
+                $cours['classes'] = $classes;
+            }
+            
+            return $cours;
         } catch (PDOException $e) {
             error_log("Erreur lors de la récupération du cours : " . $e->getMessage());
             return null;
@@ -263,5 +321,4 @@ function FindOneCours($cours_id) {
     }
     return null;
 }
-
 

@@ -19,3 +19,60 @@ function FindAllInscriptions()
         return [];
     }
 }
+
+//==========================fonction qui permet d'ajouter les cours =============================
+function AddInscription($data) {
+    $pdo = connectToDatabase();
+    if ($pdo) {
+        try {
+            $pdo->beginTransaction();
+            
+            // 1. Insérer l'utilisateur
+            $stmt = $pdo->prepare("
+                INSERT INTO utilisateur
+                (nom, prenom, email, role) 
+                VALUES (?, ?, ?, 'etudiant')
+            ");
+            $stmt->execute([
+                $data['nom'],
+                $data['prenom'],
+                $data['email']
+            ]);
+            $userId = $pdo->lastInsertId();
+            
+            // 2. Insérer l'étudiant
+            $stmt = $pdo->prepare("
+                INSERT INTO etudiant
+                (id_utilisateur, matricule, adresse) 
+                VALUES (?, ?, ?)
+            ");
+            $stmt->execute([
+                $userId,
+                $data['matricule'],
+                $data['adresse']
+            ]);
+            $etudiantId = $pdo->lastInsertId();
+            
+            // 3. Insérer l'inscription
+            $stmt = $pdo->prepare("
+                INSERT INTO inscription
+                (id_etudiant, id_classe, annee_scolaire) 
+                VALUES (?, ?, ?)
+            ");
+            $stmt->execute([
+                $etudiantId,
+                $data['classe'],
+                date('Y') // Année scolaire actuelle
+            ]);
+            
+            $pdo->commit();
+            return true;
+            
+        } catch (PDOException $e) {
+            $pdo->rollBack();
+            error_log("Erreur lors de l'ajout de l'inscription : " . $e->getMessage());
+            return false;
+        }
+    }
+    return false;
+}

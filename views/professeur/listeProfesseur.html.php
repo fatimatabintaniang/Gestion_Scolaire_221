@@ -3,7 +3,10 @@
 
     <!-- Barre de recherche et bouton -->
     <div class="flex justify-between items-center mb-4">
-        <h2 class="text-2xl font-bold mb-4">Liste des Professeurs</h2>
+    <div>
+            <h2 class="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Liste des Professeurs</h2>
+            <p class="text-gray-500 mt-1">Liste des professeur</p>
+        </div>
 
         <div class="flex space-x-3">
             <div class="relative group">
@@ -26,7 +29,7 @@
                             </svg>
                         </div>
 
-                        <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">
+                        <button type="submit" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 text-white bg-gradient-to-r from-primary to-accent">
                             Rechercher
                         </button>
 
@@ -53,17 +56,26 @@
                             </a>
                         </div>
                     <?php endif; ?>
+                    <!-- Dans listeProfesseur.html.php -->
+<div class="flex space-x-3">
+    <!-- Ajoutez ce bouton -->
+    <a href="?controler=professeur&page=listeProfesseur&show_archived=1" 
+       class="bg-gray-200 text-black px-4 py-2 rounded hover:bg-gray-300">
+       Voir les archivés
+    </a>
+    <!-- ... autres boutons ... -->
+</div>
                 </div>
             </div>
 
-            <a href="?controler=professeur&page=listeProfesseur&show_add_modal=1" class="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">
+            <a href="?controler=professeur&page=listeProfesseur&show_add_modal=1" class="text-white bg-gradient-to-r from-primary to-accent text-white px-4 py-2 rounded ">
                 Nouveau
             </a>
         </div>
     </div>
 
     <!-- Modale Ajout Professeur -->
-    <div id="add-course-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 
+    <div id="add-course-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50  z-50
     <?= (isset($_GET['show_add_modal']) || !empty($errors)) ? '' : 'hidden' ?>">
         <div class="bg-white p-6 rounded-lg shadow-lg w-[50%]">
             <h2 class="text-xl font-bold mb-4">Ajouter un Professeur</h2>
@@ -165,7 +177,7 @@
     </div>
 
     <!-- Modale Modification Professeur -->
-    <div id="edit-course-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 
+    <div id="edit-course-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 
     <?= (isset($_GET['show_edit_modal']) || (!empty($errors) && isset($isEditMode))) ? '' : 'hidden' ?>">
         <div class="bg-white p-6 rounded-lg shadow-lg w-[50%]">
             <h2 class="text-xl font-bold mb-4">Modifier le Professeur</h2>
@@ -265,9 +277,9 @@
     </div>
 
     <!-- Modal pour afficher les classes -->
-    <div id="view-classes-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 <?= isset($showClassesModal) && $showClassesModal ? '' : 'hidden' ?>">
+    <div id="view-classes-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 <?= isset($showClassesModal) && $showClassesModal ? '' : 'hidden' ?>">
         <div class="bg-white p-6 rounded-lg shadow-lg w-[50%] max-h-[80vh] flex flex-col">
-        <h2 class="text-xl font-bold mb-4">Classes pour ce professeur </h2>
+            <h2 class="text-xl font-bold mb-4">Classes pour ce professeur </h2>
             <div class="overflow-y-auto flex-grow">
                 <?php if (!empty($classesForModal)): ?>
                     <div class="grid grid-cols-2 gap-4">
@@ -295,93 +307,122 @@
             </div>
 
             <div class="flex justify-end mt-4">
-            <a href="?controler=professeur&page=listeProfesseur&page_num=<?= $currentPage ?><?= !empty($currentSearch) ? '&search=' . urlencode($currentSearch) : '' ?>" 
-               class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500 transition-colors">
-                Fermer
-            </a>
-        </div>
+                <a href="?controler=professeur&page=listeProfesseur&page_num=<?= $currentPage ?><?= !empty($currentSearch) ? '&search=' . urlencode($currentSearch) : '' ?>"
+                    class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500 transition-colors">
+                    Fermer
+                </a>
+            </div>
         </div>
     </div>
+
+    <!-- Modal pour confirmation de l'archivage -->
+    <div id="archive-confirm-modal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 <?= isset($showArchiveModal) && $showArchiveModal ? '' : 'hidden' ?>">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-1/3">
+            <h2 class="text-xl font-bold mb-4">Confirmer l'archivage</h2>
+            <p class="mb-6">Êtes-vous sûr de vouloir archiver ce professeur ?</p>
+
+            <div class="flex justify-end space-x-3">
+                <a href="?controler=professeur&page=listeProfesseur&page_num=<?= $currentPage ?><?= !empty($currentSearch) ? '&search=' . urlencode($currentSearch) : '' ?>"
+                    class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">
+                    Annuler
+                </a>
+                <a href="?controler=professeur&page=archiver&id=<?= $archiveId ?? '' ?>&confirm=yes&page_num=<?= $currentPage ?><?= !empty($currentSearch) ? '&search=' . urlencode($currentSearch) : '' ?>"
+                    class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                    Confirmer
+                </a>
+            </div>
+        </div>
+    </div>
+
 
 
     <!-- Tableau -->
     <div class="bg-white text-black p-4 rounded-lg shadow">
-        <table class="w-full text-left border-collapse">
-            <thead>
-                <tr>
-                    <th>Nom</th>
-                    <th>Prenom</th>
-                    <th>Specialite</th>
-                    <th>Grade</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-            <?php if (empty($professeurs)): ?>
-            <tr>
-                <td colspan="5" class="text-center py-4">
-                    Aucun résultat trouvé pour "<?= htmlspecialchars($currentSearch ?? '') ?>"
-                </td>
-            </tr>
+       
+
+        <div class="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-3 gap-6  ">
+        <?php if (empty($professeurs)): ?>
+            <div class="col-span-full py-16 text-center animate-pulse">
+                <div class="mx-auto w-28 h-28 rounded-full bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center mb-6 shadow-inner">
+                    <i class="fas fa-chalkboard-teacher text-4xl text-gray-300"></i>
+                </div>
+                <h3 class="text-xl font-medium text-gray-700">Aucun cours programmé</h3>
+                <p class="text-gray-400 mt-2">Les cours apparaîtront ici</p>
+            </div>
         <?php else: ?>
-                <?php foreach ($professeurs as $professeur) { ?>
-                    <tr class="border-b">
-                        <td><?= $professeur["nom"] ?></td>
-                        <td><?= $professeur["prenom"] ?></td>
-                        <td><?= $professeur["specialite"] ?></td>
-                        <td><?= $professeur["grade"] ?></td>
-                        <!-- Dans la partie tableau, modifiez la colonne Action -->
-                        <td class="p-2 relative group">
-                            <!-- Bouton "⋮" -->
-                            <button class="p-2 rounded bg-gray-200 hover:bg-gray-300 transition-colors">⋮</button>
+            <?php foreach ($professeurs as $professeur): ?>
+                <div class="relative bg-white rounded-2xl overflow-hidden shadow-lg border transition-all duration-500 group transform hover:-translate-y-2 border border-gray-100 ">
+                    <!-- Bandeau coloré neutre -->
+                    <div class="absolute top-0 left-0 w-full h-2 text-white bg-gradient-to-r from-primary to-accent"></div>
 
-                            <!-- Menu déroulant -->
-                            <div class="hidden group-hover:block absolute bg-white shadow-md rounded p-2 right-0 z-10 w-48 border border-gray-100">
-                                <a href="?controler=professeur&page=listeProfesseur&show_edit_modal=1&edit_id=<?= $professeur['id_professeur'] ?>"
-                                    class="block p-2 hover:bg-gray-100 rounded">✏️ Modifier</a>
-                                    <a href="?controler=professeur&page=voirClasses&professeur_id=<?= $professeur['id_professeur'] ?>" 
-                                    class="block p-2 hover:bg-gray-100 rounded">👀 Voir Classes</a>
-                                <a href="#" class="block p-2 hover:bg-gray-100 rounded">📂 Archiver</a>
+                    <!-- Contenu principal -->
+                    <div class="p-5 pt-6">
+                        <!-- En-tête -->
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800">
+                                    <?= htmlspecialchars($professeur["nom"] ?? 'Non défini') ?>
+                                </h3>
+                                <p class="text-sm text-gray-500 mt-1">
+                                    <?= htmlspecialchars($professeur["prenom"] ?? 'Non défini') ?>
+                                </p>
                             </div>
-                        </td>
+                            <span class="bg-gray-100 shadow-inner rounded-lg px-2.5 py-1 text-sm font-medium text-gray-700">
+                                <?= htmlspecialchars($professeur["specialite"] ?? 'Non défini') ?>
+                            </span>
+                            <p class="text-sm text-gray-500 mt-1 text-purple-500">
+                            <?= htmlspecialchars($professeur["grade"] ?? 'Non défini') ?>                                </p>
+                        </div>
+                    </div>
 
-                    </tr>
-                <?php } ?>
-                 <?php endif; ?>
-            </tbody>
-        </table>
-<!-- Pagination -->
-<?php if ($totalProfesseur > $perPage): ?>
-    <div class="flex justify-center mt-4">
-        <div class="flex space-x-2">
-            <?php if ($currentPage > 1): ?>
-                <a href="?controler=professeur&page=listeProfesseur&page_num=<?= $currentPage - 1 ?><?= !empty($currentSearch) ? '&search=' . urlencode($currentSearch) : '' ?>"
-                   class="px-4 py-2 border rounded hover:bg-gray-100">
-                    Précédent
-                </a>
-            <?php endif; ?>
-
-            <?php 
-            $totalPages = ceil($totalProfesseur / $perPage);
-            $startPage = max(1, $currentPage - 2);
-            $endPage = min($totalPages, $currentPage + 2);
-            
-            for ($i = $startPage; $i <= $endPage; $i++): ?>
-                <a href="?controler=professeur&page=listeProfesseur&page_num=<?= $i ?><?= !empty($currentSearch) ? '&search=' . urlencode($currentSearch) : '' ?>"
-                   class="px-4 py-2 border rounded <?= $i == $currentPage ? 'bg-purple-600 text-white' : 'hover:bg-gray-100' ?>">
-                    <?= $i ?>
-                </a>
-            <?php endfor; ?>
-
-            <?php if ($currentPage < $totalPages): ?>
-                <a href="?controler=professeur&page=listeProfesseur&page_num=<?= $currentPage + 1 ?><?= !empty($currentSearch) ? '&search=' . urlencode($currentSearch) : '' ?>"
-                   class="px-4 py-2 border rounded hover:bg-gray-100">
-                    Suivant
-                </a>
-            <?php endif; ?>
-        </div>
+                    <div class="px-5 py-4 bg-gray-50 border-t border-gray-100 flex ">
+                                    <a href="?controler=professeur&page=listeProfesseur&show_edit_modal=1&edit_id=<?= $professeur['id_professeur'] ?>"
+                                        class="block p-2 hover:bg-gray-100 rounded text-xs">✏️ Modifier</a>
+                                    <a href="?controler=professeur&page=voirClasses&professeur_id=<?= $professeur['id_professeur'] ?>"
+                                        class="block p-2 hover:bg-gray-100 rounded text-xs">👀 Voir Classes</a>
+                                    <!-- Modifiez le lien d'archivage dans le menu déroulant : -->
+                                    <a href="?controler=professeur&page=archiver&id=<?= $professeur['id_professeur'] ?>&page_num=<?= $currentPage ?><?= !empty($currentSearch) ? '&search=' . urlencode($currentSearch) : '' ?>"
+                                        class="block p-2 hover:bg-gray-100 rounded text-xs">📂 Archiver</a>
+                                </div>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
     </div>
-<?php endif; ?>
-        
+        <!-- Pagination -->
+        <?php if ($totalProfesseur > $perPage): ?>
+            <div class="flex   justify-between items-center mt-4">
+            <div class="text-sm text-gray-600">
+                    Affichage de <?= (($currentPage - 1) * 5) + 1 ?> à <?= min($currentPage * 5, $totalProfesseur) ?> sur <?= $totalProfesseur ?> professeur
+                </div>
+                <div class="flex space-x-2">
+                    <?php if ($currentPage > 1): ?>
+                        <a href="?controler=professeur&page=listeProfesseur&page_num=<?= $currentPage - 1 ?><?= !empty($currentSearch) ? '&search=' . urlencode($currentSearch) : '' ?>"
+                            class="px-4 py-2 border rounded hover:bg-gray-100">
+                            Précédent
+                        </a>
+                    <?php endif; ?>
+
+                    <?php
+                    $totalPages = ceil($totalProfesseur / $perPage);
+                    $startPage = max(1, $currentPage - 2);
+                    $endPage = min($totalPages, $currentPage + 2);
+
+                    for ($i = $startPage; $i <= $endPage; $i++): ?>
+                        <a href="?controler=professeur&page=listeProfesseur&page_num=<?= $i ?><?= !empty($currentSearch) ? '&search=' . urlencode($currentSearch) : '' ?>"
+                            class="px-4 py-2 border rounded <?= $i == $currentPage ? 'bg-purple-600 text-white' : 'hover:bg-gray-100' ?>">
+                            <?= $i ?>
+                        </a>
+                    <?php endfor; ?>
+
+                    <?php if ($currentPage < $totalPages): ?>
+                        <a href="?controler=professeur&page=listeProfesseur&page_num=<?= $currentPage + 1 ?><?= !empty($currentSearch) ? '&search=' . urlencode($currentSearch) : '' ?>"
+                            class="px-4 py-2 border rounded hover:bg-gray-100">
+                            Suivant
+                        </a>
+                    <?php endif; ?>
+                </div>
+            </div>
+        <?php endif; ?>
+
     </div>
 </div>

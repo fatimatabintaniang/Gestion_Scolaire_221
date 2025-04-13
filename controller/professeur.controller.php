@@ -10,9 +10,9 @@ function handleListeProfesseur()
         $searchTerm = isset($_GET['search']) ? trim($_GET['search']) : '';
         $currentPage = isset($_GET['page_num']) ? (int)$_GET['page_num'] : 1;
         $perPage = 5; // Nombre d'éléments par page
-        
+
         $result = FindAllProfesseur($searchTerm, $currentPage, $perPage);
-        
+
         $data = [
             'professeurs' => $result['professeurs'],
             'allClasses' => FindAllClasse(),
@@ -40,7 +40,6 @@ function handleListeProfesseur()
         unset($_SESSION['errors'], $_SESSION['formData'], $_SESSION['message']);
 
         RenderView("professeur/listeProfesseur", $data, "professeur.layout");
-        
     } catch (Exception $e) {
         error_log("[ERREUR] " . $e->getMessage());
         $_SESSION['error'] = "Erreur lors du chargement des données";
@@ -274,6 +273,51 @@ function handleVoirClasses()
     exit();
 }
 
+// Dans professeur.controller.php
+function handleArchiveProfesseur()
+{
+    if (!isset($_GET['id'])) {
+        $_SESSION['error'] = "ID du professeur manquant";
+        redirectToList();
+        return;
+    }
+
+    $professeurId = $_GET['id'];
+    $confirm = $_GET['confirm'] ?? null;
+
+    if ($confirm === 'yes') {
+        // Confirmation reçue, procéder à l'archivage
+        if (ArchiveProfesseur($professeurId)) {
+            $_SESSION['message'] = "Professeur archivé avec succès";
+        } else {
+            $_SESSION['error'] = "Erreur lors de l'archivage du professeur";
+        }
+        redirectToList();
+    } else {
+        // Afficher la modal de confirmation
+        $searchTerm = isset($_GET['search']) ? trim($_GET['search']) : '';
+        $currentPage = isset($_GET['page_num']) ? (int)$_GET['page_num'] : 1;
+        $perPage = 5;
+        $showArchived = isset($_GET['show_archived']) && $_GET['show_archived'] == 1;
+
+        $result = FindAllProfesseur($searchTerm, $currentPage, $perPage, $showArchived);
+
+        $data = [
+            'professeurs' => $result['professeurs'],
+            'allClasses' => FindAllClasse(),
+            'currentSearch' => $searchTerm,
+            'totalProfesseur' => $result['total'],
+            'currentPage' => $result['currentPage'],
+            'perPage' => $result['perPage'],
+            'showArchiveModal' => true,
+            'archiveId' => $professeurId
+        ];
+
+        RenderView("professeur/listeProfesseur", $data, "professeur.layout");
+    }
+}
+
+
 
 // Routeur principal
 if (isset($_REQUEST["page"])) {
@@ -290,6 +334,11 @@ if (isset($_REQUEST["page"])) {
 
         case 'voirClasses':
             handleVoirClasses();
+            break;
+
+        // Ajoutez cette ligne dans le routeur principal :
+        case "archiver":
+            handleArchiveProfesseur();
             break;
     }
 }

@@ -7,7 +7,7 @@ function getDashboardStats() {
     $query = $db->query("SELECT COUNT(*) as total FROM inscription");
     $stats["total_inscription"] = $query->fetch()["total"];
 
-    $query = $db->query("SELECT COUNT(*) as total FROM classe");
+    $query = $db->query("SELECT COUNT(*) as total FROM classe WHERE archive=0");
     $stats["total_classe"] = $query->fetch()["total"];
 
     $query = $db->query("SELECT COUNT(*) as total FROM etudiant");

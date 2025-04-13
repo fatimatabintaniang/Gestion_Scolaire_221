@@ -1,48 +1,71 @@
 <!-- Contenu Principal -->
-<div class="flex-1 p-6 rounded shadow">
+<div class="flex-1 p-6 md:p-8 rounded-2xl bg-white shadow-xl">
 
-    <!-- Barre de recherche et bouton -->
-    <div class="flex justify-between items-center mb-4">
-        <h2 class="text-2xl font-bold mb-4">Liste des Cours d'un professeur</h2>
-        <div class="space-x-3">
-            <button class=" text-black shadow px-4 py-2 rounded">filtrer</button>
-            <button class="bg-purple-600 text-white px-4 py-2 rounded">Nouveau</button>
+    <!-- En-tête avec titre et boutons - Fonctionnalités conservées -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div>
+            <h2 class="text-3xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Liste des Cours</h2>
+            <p class="text-gray-500 mt-1">Cours du professeur</p>
+        </div>
+        
+        <div class="flex space-x-3">
+            <!-- Bouton Filtres (identique en fonctionnalité) -->
+            <button class="flex items-center px-4 py-2.5 border border-gray-200 rounded-xl shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <i class="fas fa-filter mr-2 text-primary"></i> Filtres
+            </button>
+            
         </div>
     </div>
 
-    <!-- Tableau -->
-    <div class="bg-white text-black p-4 rounded-lg shadow">
-        <table class="w-full text-left border-collapse">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>HD</th>
-                    <th>HF</th>
-                    <th>Semestre</th>
-                    <th>Classe</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($coursProfesseurs as $coursProfesseur) { ?>
-                    <tr class="border-b">
-                        <td><?= htmlspecialchars($coursProfesseur["date"] ?? 'Non défini') ?></td>
-                        <td><?= htmlspecialchars($coursProfesseur["heure_debut"] ?? 'Non défini') ?></td>
-                        <td><?= htmlspecialchars($coursProfesseur["heure_fin"] ?? 'Non défini') ?></td>
-                        <td><?= htmlspecialchars($coursProfesseur["semestre"] ?? 'Non défini') ?></td>
-                        <td><?= htmlspecialchars($coursProfesseur["classe"] ?? 'Non assigné') ?></td>
-                        <td class="p-2 relative group">
-                            <!-- Bouton "⋮" -->
-                            <button class="p-2 rounded bg-gray-200 hover:bg-gray-300 transition-colors">⋮</button>
+    <!-- Liste des cours en cartes - Mêmes données et fonctionnalités -->
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 ">
+        <?php if (empty($coursProfesseurs)): ?>
+            <div class="col-span-full py-16 text-center animate-pulse">
+                <div class="mx-auto w-28 h-28 rounded-full bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center mb-6 shadow-inner">
+                    <i class="fas fa-chalkboard-teacher text-4xl text-gray-300"></i>
+                </div>
+                <h3 class="text-xl font-medium text-gray-700">Aucun cours programmé</h3>
+                <p class="text-gray-400 mt-2">Les cours apparaîtront ici</p>
+            </div>
+        <?php else: ?>
+            <?php foreach ($coursProfesseurs as $coursProfesseur): ?>
+                <div class="relative bg-white rounded-2xl overflow-hidden shadow-lg border transition-all duration-500 group transform hover:-translate-y-2 border border-gray-100 ">
+                    <!-- Bandeau coloré neutre -->
+                    <div class="absolute top-0 left-0 w-full h-2 text-white bg-gradient-to-r from-primary to-accent"></div>
 
-                            <!-- Menu déroulant -->
-                            <div class="hidden group-hover:block absolute bg-white shadow-md rounded p-2 right-0 z-10 w-48 border border-gray-100">
-                                <a href="view_etudiants.php?cours_id=<?= $cour['id_cours'] ?>" class="block p-2 hover:bg-gray-100 rounded">👀 Voir Classe</a>
+                    <!-- Contenu principal -->
+                    <div class="p-5 pt-6">
+                        <!-- En-tête -->
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800">
+                                    <?= htmlspecialchars($coursProfesseur["date"] ?? 'Non défini') ?>
+                                </h3>
+                                <p class="text-sm text-gray-500 mt-1">
+                                    <?= htmlspecialchars($coursProfesseur["semestre"] ?? 'Non défini') ?>
+                                </p>
                             </div>
-                        </td>
-                    </tr>
-                <?php } ?>
-            </tbody>
-        </table>
+                            <span class="bg-gray-100 shadow-inner rounded-lg px-2.5 py-1 text-sm font-medium text-gray-700">
+                                <?= htmlspecialchars($coursProfesseur["heure_debut"] ?? '--:--') ?>-<?= htmlspecialchars($coursProfesseur["heure_fin"] ?? '--:--') ?>
+                            </span>
+                        </div>
+
+                        <!-- Classe -->
+                        <div class="mb-4">
+                            <span class="inline-block px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                <?= htmlspecialchars($coursProfesseur["classe"] ?? 'Non assigné') ?>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Pied de carte avec menu identique -->
+                    <div class="px-5 py-4 bg-gray-50 border-t border-gray-100 flex justify-end">
+                        <div class="">
+                            <button class="bg-purple-300 text-purple-800 p-1 rounded"><a href="view_etudiants.php?cours_id=# ?>">Voir Classe</a></button>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
     </div>
 </div>

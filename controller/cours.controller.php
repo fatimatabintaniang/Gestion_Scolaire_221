@@ -2,6 +2,7 @@
 require_once "../model/cours.model.php";
 require_once "../model/professeur.model.php";
 require_once "../model/module.model.php";
+require_once "../model/classe.model.php";
 
 if (!isset($_REQUEST["page"])) {
     header("Location: ?controler=cours&page=listeCours");
@@ -71,6 +72,7 @@ function handleListeCours() {
     RenderView("cours/listeCours", [
         'cours' => $cours,
         'professeurs' => $professeurs,
+        'allClasses' => FindAllClasse(),
         'modules' => $modules,
         'formData' => $formData,
         'errors' => $errors,
@@ -115,11 +117,15 @@ function handleAjouter() {
         }
     }
      
-    if( empty($errors['heure_debut']<$errors['heure_fin'])){
-        $errors['heure_fin'] = "L'heure de fin doit être supérieure à l'heure de début";
-
+    if (empty($errors['heure_debut']) && empty($errors['heure_fin'])) {
+        if (strtotime($_POST['heure_debut']) >= strtotime($_POST['heure_fin'])) {
+            $errors['heure_fin'] = "L'heure de fin doit être supérieure à l'heure de début";
+        }
     }
 
+if (empty($_POST['classes']) || !is_array($_POST['classes'])) {
+    $errors['classes'] = "Veuillez sélectionner au moins une classe";
+}
 
 
     if (empty($errors)) {
@@ -127,6 +133,7 @@ function handleAjouter() {
             'date' => $_POST['date'],
             'heure_debut' => $_POST['heure_debut'],
             'heure_fin' => $_POST['heure_fin'],
+            'classes'=> $_POST['classes'],
             'nombre_heures' => $_POST['nombre_heures'],
             'semestre' => $_POST['semestre'],
             'professeur' => $_POST['professeur'],
@@ -155,18 +162,21 @@ function handleVoirClasses() {
         exit();
     }
 
+    // Récupérer les données nécessaires
     $classes = getClassesByCoursId($cours_id);
-    $professeurs = FindAllProfesseur();
-    $modules = FindAllModules();
     $coursData = FindAllCours();
+    
+    // Debug: vérifiez ce qui est récupéré
+    error_log("Classes pour cours $cours_id: ".print_r($classes, true));
     
     RenderView("cours/listeCours", [
         'cours' => $coursData,
-        'professeurs' => $professeurs,
-        'modules' => $modules,
+        'professeurs' => FindAllProfesseur(),
+        'modules' => FindAllModules(),
         'showClassesModal' => true,
         'classesForModal' => $classes,
-        'currentCoursId' => $cours_id
+        'currentCoursId' => $cours_id,
+        'allClasses' => FindAllClasse() // Ajouté pour référence
     ], "cours.layout");
     exit();
 }
@@ -233,6 +243,22 @@ function handlePrepareModifier() {
         exit();
     }
 
+    // Récupérer toutes les classes pour l'affichage
+    $allClasses = FindAllClasse();
+    
+    // Préparer les données pour la vue
+    $formData = [
+        'date' => $coursToEdit['date'],
+        'heure_debut' => $coursToEdit['heure_debut'],
+        'heure_fin' => $coursToEdit['heure_fin'],
+        'nombre_heures' => $coursToEdit['nombre_heures'],
+        'semestre' => $coursToEdit['semestre'],
+        'professeur' => $coursToEdit['id_professeur'],
+        'module' => $coursToEdit['id_module'],
+        'classes' => $coursToEdit['classes'] ?? [] // Classes associées
+    ];
+
+    // Autres données nécessaires...
     $id_professeur = $_GET['professeur_filtre'] ?? null;
     $date_debut = $_GET['date_debut'] ?? null;
     $date_fin = $_GET['date_fin'] ?? null;
@@ -243,43 +269,46 @@ function handlePrepareModifier() {
     $totalCours = CountCours($id_professeur, $date_debut, $date_fin);
     $totalPages = ceil($totalCours / $perPage);
 
-    $professeurs = FindAllProfesseur();
-    $modules = FindAllModules();
-
     RenderView("cours/listeCours", [
         'cours' => $cours,
-        'professeurs' => $professeurs,
-        'modules' => $modules,
+        'professeurs' => FindAllProfesseur(),
+        'modules' => FindAllModules(),
+        'allClasses' => $allClasses,
         'currentPage' => $currentPage,
         'totalPages' => $totalPages,
         'totalCours' => $totalCours,
         'showEditModal' => true,
         'coursToEdit' => $coursToEdit,
-        'formData' => $_SESSION['formData'] ?? [],
+        'formData' => array_merge($formData, $_SESSION['formData'] ?? []),
         'errors' => $_SESSION['errors'] ?? []
     ], "cours.layout");
     
     unset($_SESSION['formData'], $_SESSION['errors']);
     exit();
 }
-
 // Exécute la modification
 function handleModifierCours() {
     $cours_id = $_GET['cours_id'] ?? null;
     
     if ($_SERVER["REQUEST_METHOD"] != "POST" || !$cours_id) {
-        header("Location: ?controler=cours&page=listeCours");
+        header("Location: ?controller=cours&page=listeCours");
         exit();
     }
 
     $errors = [];
     $requiredFields = ['date', 'heure_debut', 'heure_fin', 'nombre_heures', 'semestre', 'professeur', 'module'];
 
+    // Validation des champs obligatoires
     foreach ($requiredFields as $field) {
-        isEmpty($field, $errors);
+        if (empty($_POST[$field])) {
+            $errors[$field] = "Ce champ est obligatoire";
+        }
     }
 
-    // ... (validations comme dans le code original)
+    // Validation des classes
+    if (empty($_POST['classes']) || !is_array($_POST['classes'])) {
+        $errors['classes'] = "Veuillez sélectionner au moins une classe";
+    }
 
     if (empty($errors)) {
         $data = [
@@ -289,7 +318,8 @@ function handleModifierCours() {
             'nombre_heures' => $_POST['nombre_heures'],
             'semestre' => $_POST['semestre'],
             'professeur' => $_POST['professeur'],
-            'module' => $_POST['module']
+            'module' => $_POST['module'],
+            'classes' => $_POST['classes'] // N'oubliez pas les classes
         ];
 
         if (UpdateCours($cours_id, $data)) {

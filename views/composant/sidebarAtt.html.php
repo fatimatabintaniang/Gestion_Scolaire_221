@@ -1,3 +1,5 @@
+
+
 <!-- views/components/sidebar.php -->
 <!DOCTYPE html>
 <html lang="fr">
@@ -8,35 +10,58 @@
     <title>Liste des propriétaires</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#7C3AED',
+                        secondary: '#F59E0B',
+                        accent: '#EC4899',
+                    }
+                }
+            }
+        }
+    </script>
 </head>
 
 <body class="bg-gray-100">
 
-    <!-- Sidebar -->
-    <aside class="w-[17%] bg-gradient-to-b from-purple-400 to-purple-600 text-white flex flex-col p-5 rounded">
-        <!-- Logo -->
-        <div class="flex items-center justify-center">
-            <div class="bg-white text-purple-600 text-3xl font-bold rounded w-16 h-16 p-10 flex items-center justify-center">
+    <!-- Sidebar modernisée -->
+    <aside class="w-[17%] bg-gradient-to-b from-accent to-accent-dark text-white flex flex-col p-5 rounded-r-xl shadow-xl border-r border-gray-200">
+        <!-- Logo amélioré -->
+        <div class="flex items-center justify-center mb-10">
+            <div class="bg-white text-primary text-2xl font-bold rounded-xl w-14 h-14 flex items-center justify-center shadow-md hover:scale-105 transition-transform duration-300">
                 GB
             </div>
         </div>
 
-        <!-- Menu -->
-        <nav class="mt-16 flex-1 space-y-3">
-            <a href="<?=WEBROOB?>?controler=dashboardatt&page=dashboardatt" class="flex items-center text-sm py-3 px-4 rounded-lg hover:bg-white hover:bg-opacity-20 transition">
-                <span class="mr-2">📊</span> Dashboard
+        <!-- Menu avec animations -->
+        <nav class="mt-8 flex-1 space-y-2">
+            <a href="<?=WEBROOB?>?controler=dashboardatt&page=dashboardatt" 
+               class="flex items-center text-sm py-3 px-4 rounded-lg hover:bg-white/20 transition-all duration-300 group">
+                <span class="mr-3 text-lg group-hover:text-secondary">📊</span> 
+                <span class="font-medium group-hover:translate-x-1 transition-transform duration-300">Dashboard</span>
             </a>
-            <a href="<?=WEBROOB?>?controler=inscription&page=listeInscription" class="flex items-center text-sm py-3 px-4 hover:bg-white hover:bg-opacity-20  rounded-lg">
-                <span class="mr-2">🏠</span> Liste des inscrits
+            
+            <a href="<?=WEBROOB?>?controler=inscription&page=listeInscription" 
+               class="flex items-center text-sm py-3 px-4 rounded-lg hover:bg-white/20 transition-all duration-300 group">
+                <span class="mr-3 text-lg group-hover:text-secondary">🏠</span>
+                <span class="font-medium group-hover:translate-x-1 transition-transform duration-300">Liste des inscriptions</span>
             </a>
-            <a href="<?=WEBROOB?>?controler=absence&page=absence" class="flex items-center text-sm py-3 px-4 rounded-lg hover:bg-white hover:bg-opacity-20 transition">
-                <span class="mr-2">🏡</span> Gerer absence
+            
+            <a href="<?=WEBROOB?>?controler=absence&page=absence" 
+               class="flex items-center text-sm py-3 px-4 rounded-lg hover:bg-white/20 transition-all duration-300 group">
+                <span class="mr-3 text-lg group-hover:text-secondary">🏡</span>
+                <span class="font-medium group-hover:translate-x-1 transition-transform duration-300">Gerer absence</span>
             </a>
         </nav>
 
-        <!-- Déconnexion -->
-        <a href="<?=WEBROOB?>?controler=login&page=deconnexion" class="mt-auto bg-white text-purple-600 font-bold py-2 px-4 rounded-md w-full text-center">🚪 Déconnexion</a>
+        <!-- Bouton déconnexion modernisé -->
+        <a href="<?=WEBROOB?>?controler=login&page=deconnexion" 
+           class="mt-auto bg-white text-primary font-bold py-2.5 px-4 rounded-lg w-full text-center shadow-md hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 flex items-center justify-center">
+            <span class="mr-2">🚪</span> Déconnexion
+        </a>
     </aside>
 
 </body>
